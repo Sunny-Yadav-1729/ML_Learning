@@ -1,3 +1,4 @@
+import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import VotingClassifier, VotingRegressor
 from sklearn.preprocessing import LabelEncoder
@@ -12,9 +13,21 @@ from sklearn.datasets import make_blobs, make_classification,make_regression,loa
 import warnings
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
 warnings.filterwarnings("ignore")
 
 # st.header("Voting Ensemble")
+def get_x_y_regression(path):
+    df = pd.read_csv(path)
+    x = np.array(df.iloc[:,:1])
+    y = df.iloc[:,-1]
+    return x,y
+def get_x_y_classification(path):
+    df = pd.read_csv(path)
+    x = np.array(df.iloc[:,:2])
+    y = df.iloc[:,-1]
+    return x,y
+
 def give_dataset_classifaction():
     lists = []
 
@@ -23,6 +36,12 @@ def give_dataset_classifaction():
         lists.append((f"Dateset_{i+1}",x,y))
     x,y = np.array(sns.load_dataset('iris').iloc[:,:4]),sns.load_dataset('iris').iloc[:,-1]
     lists.append(('iris',x,y))
+    folder_path = r"C:\Users\WELCOME\OneDrive\Desktop\Learning\Enemble_Learning\classification__datasets"
+    for file in os.listdir(folder_path):
+        if file.endswith('.csv'):
+            list_full_path = os.path.join(folder_path,file)
+            x,y = get_x_y_classification(list_full_path)
+            lists.append((file[:-4],x,y))
     return lists
 def give_dataset_regression():
     lists = []
@@ -30,8 +49,14 @@ def give_dataset_regression():
     for i in range(5):
         x,y = make_regression(100,n_features=1,noise=12,random_state=42*i)
         lists.append((f"Dateset_{i+1}",x,y))
-    
+    folder_path = r"C:\Users\WELCOME\OneDrive\Desktop\Learning\Enemble_Learning\Regression_Dataset"
+    for file in os.listdir(folder_path):
+        if file.endswith('.csv'):
+            list_full_path = os.path.join(folder_path,file)
+            x,y = get_x_y_regression(list_full_path)
+            lists.append((file[:-4],x,y))
     return lists
+    # return lists
 
 def draw_meshgrid(X):
     a = np.arange(start=X[:, 0].min() - 1, stop=X[:, 0].max() + 1, step=0.01)
@@ -46,20 +71,24 @@ def draw_meshgrid(X):
 def load_initial_graph(dataset,typr,classifier,regress,ax):
 
     if typr == 'Regression':
-        idx = int(dataset[-1]) - 1
+        name_list = [(i[0]) for i in regress]
+        idx = name_list.index(dataset)
         n,x,y  = regress[idx]
         ax.scatter(x=x,y=y,cmap = 'rainbow')
         return x,y
     else  :
+        name_list = [(i[0]) for i in classifier]
+        idx = name_list.index(dataset)
+        n,x,y = classifier[idx]
         if dataset =='iris':
-            n,x,y = classifier[-1]
+             
             y = LabelEncoder().fit_transform(y)
             # st.write(y)
             ax.scatter(x=x.T[0],y=x.T[1],c=y,cmap = 'rainbow')
             x = x[:,:2]
             return x,y
        
-        idx = int(dataset[-1]) -1
+        # idx = int(dataset[-1]) -1
         n,x,y  = classifier[idx]
         ax.scatter(x=x.T[0],y=x.T[1],c=y,cmap = 'rainbow')
         return x,y
