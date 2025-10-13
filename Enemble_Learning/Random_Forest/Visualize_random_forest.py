@@ -152,7 +152,7 @@ regression_dataset = give_dataset_regression()
 st.sidebar.markdown("# Random Forest ")
 problem_tpye = ['Regression','Classification']
 typeOf = st.sidebar.selectbox(
-    label='Choose Problem Type',options=problem_tpye
+    label='Choose Problem Type',options=problem_tpye,index=1
 )
 
 name_classification = [i[0] for i in classification_dataset]
@@ -208,42 +208,28 @@ X,y = load_initial_graph(dataset,typeOf,classification_dataset,regression_datase
 # X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 orig = st.pyplot(fig)
 
-if st.sidebar.button('Run Algorithm'):
-    # orig.empty()
-    
-    # clf = LogisticRegression(penalty=penalty,C=c_input,solver=solver,max_iter=max_iter,multi_class=multi_class,l1_ratio=l1_ratio)
-    # clf.fit(X_train,y_train)
-    if False:
-        st.sidebar.warning("⚠️ Please select  one algorithm.")
-    else:
+# ax.plot(list(range(10)))
+if  st.sidebar.button('Run Algorithm'):
+        orig.empty()
+        fig, ax = plt.subplots()
+      
         m = algorithms
         sc = cross_val_score(m,X,y,cv=5,scoring='r2' if typeOf == problem_tpye[0] else 'accuracy')
         st.sidebar.write(f"{m} : {np.round(sc.mean(),2)}")
-        # y_pred = clf.predict(X_test)
+         
         bc = br = None
         if typeOf == problem_tpye[1]:
             rfc = RandomForestClassifier()
             sc = cross_val_score(rfc,X,y,cv=5,scoring='accuracy')
-            st.sidebar.write(f" Random_Forest  : {np.round(sc.mean(),2)}")
+            st.sidebar.write(f" Random_Forest without Parameter : {np.round(sc.mean(),2)}")
         else :
             rfr = RandomForestRegressor( )
             sc = cross_val_score(rfr,X,y,cv=5,scoring='r2')
-            st.sidebar.write(f" Voting : {np.round(sc.mean(),2)}")
-        # labels = clf.predict(input_array)
-        fig, axs = plt.subplots(1, 1 + 1, figsize=(5*(1+1), 4))
-
-        # If only one classifier selected, axs may not be iterable
-        # if len(algorithms) == 1:
-        #     axs = [axs]
-
-        # Plot each selected model
-        # for i, model in enumerate(algorithms):
-        plot_decision_region(axs[0], m, X, y, title=m.__class__.__name__,typeof=typeOf)
-
-        # Plot voting classifier
+            st.sidebar.write(f" Random_Forest without Parameter : {np.round(sc.mean(),2)}")
+       
         if typeOf == 'Classification':
             # vc = VotingClassifier([(f'{i}algo', i) for i in algorithms], voting=votings)
-            plot_decision_region(axs[-1], rfc, X, y, title=f"Random_Forest {n_estimtor} ({typeOf})",typeof=typeOf)
+            plot_decision_region(ax, rfc, X, y, title=f"Random_Forest {n_estimtor} ({typeOf})",typeof=typeOf)
         else :
             # vr = VotingRegressor([(m.__class__.__name__, m) for m in algorithms])
             score = cross_val_score(rfr, X, y, cv=5, scoring='r2')
@@ -252,13 +238,13 @@ if st.sidebar.button('Run Algorithm'):
                 rfr.fit(X, y)
                 x_line = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
                 y_pred = rfr.predict(x_line)
-                axs[-1].scatter(X, y, color='blue', label='Data')
-                axs[-1].plot(x_line, y_pred, color='red', label='Random_forest')
-                axs[-1].set_title("Random Forest ")
-            else:  # 2D regression
-                # use existing meshgrid plot if you want
-                plot_decision_region(axs[0], rfr, X, y, title=m.__class__.__name__,typeof=typeOf)
-                pass
+                ax.scatter(X, y, color='blue', label='Data')
+                ax.plot(x_line, y_pred, color='red', label='Random_forest')
+                ax.set_title("Random Forest ")
+            # else:  # 2D regression
+            #     # use existing meshgrid plot if you want
+            #     plot_decision_region(axs[0], rfr, X, y, title=m.__class__.__name__,typeof=typeOf)
+            #     pass
 
         st.pyplot(fig)
         # # ax.contourf(XX, YY, labels.reshape(XX.shape), alpha=0.5, cmap='rainbow')
